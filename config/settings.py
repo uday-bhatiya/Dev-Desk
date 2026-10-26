@@ -108,3 +108,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # --- Misc -------------------------------------------------------------------
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# --- Authentication redirects -----------------------------------------------
+
+LOGIN_URL = "login"                  
+LOGIN_REDIRECT_URL = "ticket_list"   
+LOGOUT_REDIRECT_URL = "login"        

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Ticket #{{ ticket.pk }}{% endblock %}
+
+{% block content %}
+  <p><a href="{% url 'ticket_list' %}">&larr; Back to tickets</a></p>
+
+  <div class="page-header">
+    <h1>#{{ ticket.pk }} {{ ticket.title }}</h1>
+    <div>
+      {% include "tickets/_priority_badge.html" %}
+      {% include "tickets/_status_badge.html" %}
+    </div>
+  </div>
+
+  <div class="card">
+    <dl class="meta-grid">
+      <div><dt>Category</dt><dd>{{ ticket.category.name }}</dd></div>
+      <div><dt>Requester</dt><dd>{% firstof ticket.requester.get_full_name ticket.requester.username %}</dd></div>
+      <div><dt>Assignee</dt><dd>{% firstof ticket.assignee.get_full_name ticket.assignee.username "Unassigned" %}</dd></div>
+      <div><dt>Created</dt><dd>{{ ticket.created_at|date:"d M Y, H:i" }}</dd></div>
+      <div><dt>Last updated</dt><dd>{{ ticket.updated_at|date:"d M Y, H:i" }}</dd></div>
+      {% if ticket.resolved_at %}
+        <div><dt>Resolved</dt><dd>{{ ticket.resolved_at|date:"d M Y, H:i" }}</dd></div>
+      {% endif %}
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>Description</h2>
+    {{ ticket.description|linebreaks }}
+  </div>
+
+  <div class="card">
+    <h2>Comments</h2>
+    {% for comment in comments %}
+      <div class="comment{% if comment.is_internal %} comment-internal{% endif %}">
+        <div class="comment-meta">
+          {% firstof comment.author.get_full_name comment.author.username %}
+          · {{ comment.created_at|date:"d M Y, H:i" }}
+          {% if comment.is_internal %}<span class="badge badge-internal">Internal note</span>{% endif %}
+        </div>
+        {{ comment.body|linebreaks }}
+      </div>
+    {% empty %}
+      <p class="muted">No comments yet.</p>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <h2>History</h2>
+    <ul class="timeline">
+      {% for entry in history %}
+        <li>
+          {{ entry.created_at|date:"d M Y, H:i" }}:
+          {% firstof entry.changed_by.get_full_name entry.changed_by.username %}
+          changed {{ entry.get_field_display|lower }}
+          from {{ entry.old_value|default:"none" }} to {{ entry.new_value|default:"none" }}
+        </li>
+      {% empty %}
+        <li class="muted">No changes recorded yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

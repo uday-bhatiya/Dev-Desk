@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Tickets
+{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1>
+      {% if user.can_handle_tickets %}
+        All tickets
+      {% else %}
+        My tickets
+      {% endif %}
+    </h1>
+    <a class="btn btn-primary" href="{% url 'ticket_create' %}">New ticket</a>
+  </div>
+
+  <div class="card">
+    {% if tickets %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Summary</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              {% if user.can_handle_tickets %}
+                <th>Requester</th>
+              {% endif %}
+              <th>Assignee</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ticket in tickets %}
+              <tr>
+                <td>#{{ ticket.pk }}</td>
+                <td class="wrap">
+                  <a href="{% url 'ticket_detail' ticket.pk %}">{{ ticket.title }}</a>
+                </td>
+                <td>{{ ticket.category.name }}</td>
+                <td>
+                  {% include 'tickets/_priority_badge.html' %}
+                </td>
+                <td>
+                  {% include 'tickets/_status_badge.html' %}
+                </td>
+                {% if user.can_handle_tickets %}
+                  <td>
+                    {% firstof ticket.requester.get_full_name ticket.requester.username %}
+                  </td>
+                {% endif %}
+                <td>
+                  {% firstof ticket.assignee.get_full_name ticket.assignee.username 'Unassigned' %}
+                </td>
+                <td>{{ ticket.created_at|date:'d M Y' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="empty">
+        No tickets yet. <a href="{% url 'ticket_create' %}">Create the first one.</a>
+      </p>
+    {% endif %}
+  </div>
+{% endblock %}

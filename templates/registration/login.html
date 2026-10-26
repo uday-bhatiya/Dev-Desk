@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Log in{% endblock %}
+
+{% block content %}
+  <div class="card form-card">
+    <h1>Log in</h1>
+    <p class="muted">Use your DevDesk account.</p>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% include "partials/_form_fields.html" %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <button type="submit" class="btn btn-primary">Log in</button>
+    </form>
+  </div>
+{% endblock %}
