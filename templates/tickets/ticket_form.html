@@ -11,9 +11,9 @@
       {% csrf_token %}
       {% include "partials/_form_fields.html" %}
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Submit ticket</button>
-        <a class="btn btn-secondary" href="{% url 'ticket_list' %}">Cancel</a>
-      </div>
+          <button type="submit" class="btn btn-primary">Submit ticket</button>
+          <a class="btn btn-secondary" href="{% url 'ticket_list' %}">Cancel</a>
+        </div>
     </form>
   </div>
 {% endblock %}
