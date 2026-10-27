@@ -24,8 +24,6 @@ class User(AbstractUser):
             ),
         ]
 
-    # --- Role helpers 
-
     @property
     def is_it_admin(self):
         return self.is_superuser or self.role == Role.ADMIN
@@ -49,3 +47,20 @@ class User(AbstractUser):
             if update_fields is not None:
                 kwargs["update_fields"] = {*update_fields, "role"}
         super().save(*args, **kwargs)
+
+
+class LoginAttempt(models.Model):
+
+    username = models.CharField(max_length=150, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["username", "ip_address", "created_at"]),
+            models.Index(fields=["ip_address", "created_at"]),
+            models.Index(fields=["created_at"]),
+        ]
+
+    def __str__(self):
+        return f"{self.username or '-'} from {self.ip_address or 'unknown'}"

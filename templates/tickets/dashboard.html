@@ -41,7 +41,7 @@
       {% for row in by_status %}
         <div class="bar-row">
           <span>{{ row.label }}</span>
-          <div class="bar-track"><div class="bar-fill" style="width: {{ row.percent }}%"></div></div>
+          <progress value="{{ row.percent }}" max="100" aria-label="{{ row.label }}">{{ row.percent }}%</progress>
           <span class="bar-value">{{ row.total }}</span>
         </div>
       {% endfor %}
@@ -52,7 +52,7 @@
       {% for row in by_priority %}
         <div class="bar-row">
           <span>{{ row.label }}</span>
-          <div class="bar-track"><div class="bar-fill" style="width: {{ row.percent }}%"></div></div>
+          <progress value="{{ row.percent }}" max="100" aria-label="{{ row.label }}">{{ row.percent }}%</progress>
           <span class="bar-value">{{ row.total }}</span>
         </div>
       {% endfor %}
@@ -60,15 +60,16 @@
 
     <div class="card dash-wide">
       <h2>Tickets created, last 14 days</h2>
-      <div class="trend">
+      <svg class="trend-chart" viewBox="0 0 280 100" preserveAspectRatio="none"
+           role="img" aria-label="Tickets created per day over the last 14 days">
         {% for day in trend %}
-          <div class="trend-col" title="{{ day.date|date:'d M' }}: {{ day.total }}">
-            <div class="trend-bar-wrap">
-              <div class="trend-bar" style="height: {{ day.percent }}%"></div>
-            </div>
-            <div class="trend-label">{{ day.date|date:"j" }}</div>
-          </div>
+          <rect x="{{ day.x }}" y="{{ day.y }}" width="16" height="{{ day.height }}">
+            <title>{{ day.date|date:"d M" }}: {{ day.total }}</title>
+          </rect>
         {% endfor %}
+      </svg>
+      <div class="trend-labels">
+        {% for day in trend %}<span>{{ day.date|date:"j" }}</span>{% endfor %}
       </div>
     </div>
 
@@ -76,7 +77,10 @@
       <h2>Workload per agent</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Agent</th><th>Active</th><th>Resolved (30 days)</th></tr></thead>
+          <caption class="sr-only">Workload per agent</caption>
+          <thead>
+            <tr><th scope="col">Agent</th><th scope="col">Active</th><th scope="col">Resolved (30 days)</th></tr>
+          </thead>
           <tbody>
             {% for agent in workload %}
               <tr>
@@ -94,7 +98,10 @@
       <h2>By category</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Category</th><th>Active</th><th>Total</th></tr></thead>
+          <caption class="sr-only">Tickets by category</caption>
+          <thead>
+            <tr><th scope="col">Category</th><th scope="col">Active</th><th scope="col">Total</th></tr>
+          </thead>
           <tbody>
             {% for row in categories %}
               <tr><td>{{ row.name }}</td><td>{{ row.active }}</td><td>{{ row.total }}</td></tr>
@@ -110,7 +117,7 @@
   <div class="card">
     <h2>Oldest unassigned tickets</h2>
     {% if oldest_unassigned %}
-      {% include "tickets/_ticket_table.html" with tickets=oldest_unassigned show_requester=True %}
+      {% include "tickets/_ticket_table.html" with tickets=oldest_unassigned show_requester=True table_caption="Oldest unassigned tickets" %}
     {% else %}
       <p class="muted">No unassigned active tickets.</p>
     {% endif %}

@@ -128,10 +128,19 @@ def build_dashboard(user, now=None):
     days = [first_day + timedelta(days=offset) for offset in range(TREND_DAYS)]
     counts = [per_day.get(day, 0) for day in days]
     peak = max(counts)
-    trend = [
-        {"date": day, "total": count, "percent": _percent(count, peak)}
-        for day, count in zip(days, counts)
-    ]
+    trend = []
+    for index, (day, count) in enumerate(zip(days, counts)):
+        percent = _percent(count, peak)
+        trend.append(
+            {
+                "date": day,
+                "total": count,
+                "percent": percent,
+                "x": index * 20 + 2,
+                "y": 100 - percent,
+                "height": percent,
+            }
+        )
 
     oldest_unassigned = (
         tickets.filter(status__in=ACTIVE_STATUSES, assignee__isnull=True)

@@ -5,6 +5,9 @@ from accounts.models import User
 from . import permissions, services
 from .models import Category, Comment, Ticket, TicketPriority, TicketStatus
 
+MAX_DESCRIPTION_LENGTH = 5000
+MAX_COMMENT_LENGTH = 2000
+
 
 class TicketCreateForm(forms.ModelForm):
     class Meta:
@@ -33,6 +36,10 @@ class TicketCreateForm(forms.ModelForm):
             raise forms.ValidationError(
                 "Please describe the problem in at least 10 characters."
             )
+        if len(description) > MAX_DESCRIPTION_LENGTH:
+            raise forms.ValidationError(
+                f"Please keep the description under {MAX_DESCRIPTION_LENGTH} characters."
+            )
         return description
 
 
@@ -52,6 +59,13 @@ class CommentForm(forms.ModelForm):
         if not permissions.can_post_internal_note(user):
             del self.fields["is_internal"]
 
+    def clean_body(self):
+        body = self.cleaned_data["body"]
+        if len(body) > MAX_COMMENT_LENGTH:
+                raise forms.ValidationError(
+                    f"Please keep comments under {MAX_COMMENT_LENGTH} characters."
+                )
+        return body
 
 class TicketStatusForm(forms.Form):
     status = forms.ChoiceField(label="Status")
