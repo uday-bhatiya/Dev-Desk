@@ -26,6 +26,40 @@
     </dl>
   </div>
 
+  {% if assign_form or status_form or priority_form %}
+    <div class="card">
+      <h2>Actions</h2>
+      <div class="actions-grid">
+        {% if assign_form %}
+          <form method="post" action="{% url 'ticket_assign' ticket.pk %}" class="action-form">
+            {% csrf_token %}
+            <label for="{{ assign_form.assignee.id_for_label }}">Assignee</label>
+            {{ assign_form.assignee }}
+            <button type="submit" class="btn btn-secondary">Assign ticket</button>
+          </form>
+        {% endif %}
+
+        {% if status_form %}
+          <form method="post" action="{% url 'ticket_change_status' ticket.pk %}" class="action-form">
+            {% csrf_token %}
+            <label for="{{ status_form.status.id_for_label }}">Status</label>
+            {{ status_form.status }}
+            <button type="submit" class="btn btn-secondary">Update status</button>
+          </form>
+        {% endif %}
+
+        {% if priority_form %}
+          <form method="post" action="{% url 'ticket_change_priority' ticket.pk %}" class="action-form">
+            {% csrf_token %}
+            <label for="{{ priority_form.priority.id_for_label }}">Priority</label>
+            {{ priority_form.priority }}
+            <button type="submit" class="btn btn-secondary">Update priority</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
   <div class="card">
     <h2>Description</h2>
     {{ ticket.description|linebreaks }}
@@ -45,18 +79,29 @@
     {% empty %}
       <p class="muted">No comments yet.</p>
     {% endfor %}
+
+    {% if comment_form %}
+      <form method="post" action="{% url 'ticket_add_comment' ticket.pk %}" class="comment-form" novalidate>
+        {% csrf_token %}
+        {{ comment_form.body }}
+        {% if comment_form.fields.is_internal %}
+          <label class="checkbox">
+            {{ comment_form.is_internal }}
+            <span>{{ comment_form.fields.is_internal.label }}</span>
+          </label>
+        {% endif %}
+        <button type="submit" class="btn btn-primary">Add comment</button>
+      </form>
+    {% else %}
+      <p class="muted">This ticket is closed, so new comments are disabled.</p>
+    {% endif %}
   </div>
 
   <div class="card">
     <h2>History</h2>
     <ul class="timeline">
       {% for entry in history %}
-        <li>
-          {{ entry.created_at|date:"d M Y, H:i" }}:
-          {% firstof entry.changed_by.get_full_name entry.changed_by.username %}
-          changed {{ entry.get_field_display|lower }}
-          from {{ entry.old_value|default:"none" }} to {{ entry.new_value|default:"none" }}
-        </li>
+        <li>{{ entry.created_at|date:"d M Y, H:i" }}: {% firstof entry.changed_by.get_full_name entry.changed_by.username %} changed {{ entry.get_field_display|lower }} from {{ entry.old_value|default:"none" }} to {{ entry.new_value|default:"none" }}</li>
       {% empty %}
         <li class="muted">No changes recorded yet.</li>
       {% endfor %}

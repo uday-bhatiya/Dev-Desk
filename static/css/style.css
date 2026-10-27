@@ -133,3 +133,22 @@ td.wrap { white-space: normal; }
 }
 
 .help ul { margin: 0.25rem 0 0; padding-left: 1.2rem; }
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+.action-form label { display: block; font-weight: 600; margin-bottom: 0.25rem; }
+.action-form select,
+.comment-form textarea {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  background: #fff;
+  margin-bottom: 0.5rem;
+}
+.comment-form { border-top: 1px solid var(--border); margin-top: 1rem; padding-top: 1rem; }
+.checkbox { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
