@@ -1,0 +1,32 @@
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Summary</th>
+        <th>Category</th>
+        <th>Priority</th>
+        <th>Status</th>
+        {% if show_requester %}<th>Requester</th>{% endif %}
+        <th>Assignee</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ticket in tickets %}
+        <tr>
+          <td>#{{ ticket.pk }}</td>
+          <td class="wrap"><a href="{% url 'ticket_detail' ticket.pk %}">{{ ticket.title }}</a></td>
+          <td>{{ ticket.category.name }}</td>
+          <td>{% include "tickets/_priority_badge.html" %}</td>
+          <td>{% include "tickets/_status_badge.html" %}</td>
+          {% if show_requester %}
+            <td>{% firstof ticket.requester.get_full_name ticket.requester.username %}</td>
+          {% endif %}
+          <td>{% firstof ticket.assignee.get_full_name ticket.assignee.username "Unassigned" %}</td>
+          <td>{{ ticket.created_at|date:"d M Y" }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Agent queue{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1>Agent queue</h1>
+    <a class="btn btn-secondary" href="{% url 'ticket_list' %}">All tickets</a>
+  </div>
+
+  <div class="card">
+    <h2>Assigned to me ({{ mine|length }})</h2>
+    {% if mine %}
+      {% include "tickets/_ticket_table.html" with tickets=mine show_requester=True %}
+    {% else %}
+      <p class="muted">Nothing is assigned to you right now.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Unassigned ({{ unassigned|length }})</h2>
+    {% if unassigned %}
+      {% include "tickets/_ticket_table.html" with tickets=unassigned show_requester=True %}
+    {% else %}
+      <p class="muted">No unassigned tickets. Nice work.</p>
+    {% endif %}
+  </div>
+{% endblock %}

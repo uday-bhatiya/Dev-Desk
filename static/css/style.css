@@ -131,3 +131,5 @@ td.wrap { white-space: normal; }
   h1 { font-size: 1.3rem; }
   .container { padding-top: 1rem; }
 }
+
+.help ul { margin: 0.25rem 0 0; padding-left: 1.2rem; }

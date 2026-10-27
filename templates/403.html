@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Access denied{% endblock %}
+
+{% block content %}
+  <div class="card empty">
+    <h1>403: Access denied</h1>
+    <p>You do not have permission to view this page.</p>
+    <a class="btn btn-primary" href="{% url 'ticket_list' %}">Back to tickets</a>
+  </div>
+{% endblock %}
