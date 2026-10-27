@@ -8,9 +8,51 @@
     <a class="btn btn-primary" href="{% url 'ticket_create' %}">New ticket</a>
   </div>
 
+  <form method="get" class="card filter-bar">
+    <div class="filter-grid">
+      <div class="filter-field filter-search">
+        <label for="{{ form.q.id_for_label }}">Search</label>
+        {{ form.q }}
+      </div>
+      <div class="filter-field">
+        <label for="{{ form.status.id_for_label }}">Status</label>
+        {{ form.status }}
+      </div>
+      <div class="filter-field">
+        <label for="{{ form.priority.id_for_label }}">Priority</label>
+        {{ form.priority }}
+      </div>
+      <div class="filter-field">
+        <label for="{{ form.category.id_for_label }}">Category</label>
+        {{ form.category }}
+      </div>
+      {% if user.can_handle_tickets %}
+        <div class="filter-field">
+          <label for="{{ form.assignment.id_for_label }}">Assignment</label>
+          {{ form.assignment }}
+        </div>
+      {% endif %}
+      <div class="filter-field">
+        <label for="{{ form.sort.id_for_label }}">Sort by</label>
+        {{ form.sort }}
+      </div>
+      <div class="filter-actions">
+        <button type="submit" class="btn btn-primary">Apply</button>
+        <a class="btn btn-secondary" href="{% url 'ticket_list' %}">Reset</a>
+      </div>
+    </div>
+  </form>
+
   <div class="card">
-    {% if tickets %}
-      {% include "tickets/_ticket_table.html" with show_requester=user.can_handle_tickets %}
+    {% if page_obj.paginator.count %}
+      <p class="result-summary">
+        Showing {{ page_obj.start_index }} to {{ page_obj.end_index }}
+        of {{ page_obj.paginator.count }} ticket{{ page_obj.paginator.count|pluralize }}
+      </p>
+      {% include "tickets/_ticket_table.html" with tickets=page_obj show_requester=user.can_handle_tickets %}
+      {% include "tickets/_pagination.html" %}
+    {% elif filters_active %}
+      <p class="empty">No tickets match these filters. <a href="{% url 'ticket_list' %}">Clear filters</a></p>
     {% else %}
       <p class="empty">No tickets yet. <a href="{% url 'ticket_create' %}">Create the first one.</a></p>
     {% endif %}

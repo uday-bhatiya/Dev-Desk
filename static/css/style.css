@@ -152,3 +152,57 @@ td.wrap { white-space: normal; }
 }
 .comment-form { border-top: 1px solid var(--border); margin-top: 1rem; padding-top: 1rem; }
 .checkbox { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+
+/* Filters and pagination */
+.filter-bar { margin-bottom: 1rem; }
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+}
+.filter-search { grid-column: 1 / -1; }
+.filter-field label {
+  display: block; font-size: 0.8rem; font-weight: 600;
+  color: var(--muted); margin-bottom: 0.2rem;
+}
+.filter-field input, .filter-field select {
+  width: 100%; padding: 0.5rem 0.6rem; border: 1px solid var(--border);
+  border-radius: 6px; font: inherit; background: #fff;
+}
+.filter-actions { display: flex; gap: 0.5rem; }
+.result-summary { color: var(--muted); font-size: 0.9rem; margin: 0 0 0.75rem; }
+.pagination {
+  display: flex; justify-content: center; align-items: center;
+  gap: 1rem; margin-top: 1rem;
+}
+
+/* Dashboard */
+.kpi-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem; margin-bottom: 1.25rem;
+}
+.kpi {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1rem;
+}
+.kpi-value { font-size: 1.7rem; font-weight: 700; line-height: 1.2; }
+.kpi-label { color: var(--muted); font-size: 0.85rem; }
+.kpi-alert .kpi-value { color: var(--danger); }
+.dash-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 1.25rem;
+}
+.dash-wide { grid-column: 1 / -1; }
+.bar-row {
+  display: grid; grid-template-columns: 90px 1fr 40px;
+  align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;
+}
+.bar-track { background: #eef1f5; border-radius: 999px; height: 0.7rem; overflow: hidden; }
+.bar-fill { background: var(--primary); height: 100%; border-radius: 999px; }
+.bar-value { text-align: right; font-weight: 600; }
+.trend { display: flex; gap: 4px; }
+.trend-col { flex: 1; text-align: center; }
+.trend-bar-wrap { height: 110px; display: flex; align-items: flex-end; }
+.trend-bar { width: 100%; background: var(--primary); border-radius: 3px 3px 0 0; min-height: 2px; }
+.trend-label { font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; }

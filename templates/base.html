@@ -16,6 +16,7 @@
         <a href="{% url 'ticket_create' %}">New ticket</a>
         {% if user.can_handle_tickets %}
           <a href="{% url 'ticket_queue' %}">Queue</a>
+          <a href="{% url 'dashboard' %}">Dashboard</a>
         {% endif %}
         <span class="nav-user">{{ user.username }} ({{ user.get_role_display }})</span>
         <a href="{% url 'password_change' %}">Password</a>

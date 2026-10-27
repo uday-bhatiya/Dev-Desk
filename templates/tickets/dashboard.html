@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <a class="btn btn-secondary" href="{% url 'ticket_queue' %}">Open queue</a>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-value">{{ stats.active }}</div>
+      <div class="kpi-label">Active tickets</div>
+    </div>
+    <div class="kpi{% if stats.unassigned_active %} kpi-alert{% endif %}">
+      <div class="kpi-value">{{ stats.unassigned_active }}</div>
+      <div class="kpi-label">Unassigned (active)</div>
+    </div>
+    <div class="kpi{% if stats.urgent_active %} kpi-alert{% endif %}">
+      <div class="kpi-value">{{ stats.urgent_active }}</div>
+      <div class="kpi-label">Urgent (active)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-value">{{ stats.resolved_last_7_days }}</div>
+      <div class="kpi-label">Resolved in last 7 days</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-value">{{ stats.avg_resolution_display }}</div>
+      <div class="kpi-label">Avg. resolution time (30 days)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-value">{{ stats.total }}</div>
+      <div class="kpi-label">All tickets</div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+    <div class="card">
+      <h2>By status</h2>
+      {% for row in by_status %}
+        <div class="bar-row">
+          <span>{{ row.label }}</span>
+          <div class="bar-track"><div class="bar-fill" style="width: {{ row.percent }}%"></div></div>
+          <span class="bar-value">{{ row.total }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h2>Active tickets by priority</h2>
+      {% for row in by_priority %}
+        <div class="bar-row">
+          <span>{{ row.label }}</span>
+          <div class="bar-track"><div class="bar-fill" style="width: {{ row.percent }}%"></div></div>
+          <span class="bar-value">{{ row.total }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="card dash-wide">
+      <h2>Tickets created, last 14 days</h2>
+      <div class="trend">
+        {% for day in trend %}
+          <div class="trend-col" title="{{ day.date|date:'d M' }}: {{ day.total }}">
+            <div class="trend-bar-wrap">
+              <div class="trend-bar" style="height: {{ day.percent }}%"></div>
+            </div>
+            <div class="trend-label">{{ day.date|date:"j" }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Workload per agent</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Agent</th><th>Active</th><th>Resolved (30 days)</th></tr></thead>
+          <tbody>
+            {% for agent in workload %}
+              <tr>
+                <td>{% firstof agent.get_full_name agent.username %}</td>
+                <td>{{ agent.active_count }}</td>
+                <td>{{ agent.resolved_count }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>By category</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Category</th><th>Active</th><th>Total</th></tr></thead>
+          <tbody>
+            {% for row in categories %}
+              <tr><td>{{ row.name }}</td><td>{{ row.active }}</td><td>{{ row.total }}</td></tr>
+            {% empty %}
+              <tr><td colspan="3" class="muted">No tickets yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Oldest unassigned tickets</h2>
+    {% if oldest_unassigned %}
+      {% include "tickets/_ticket_table.html" with tickets=oldest_unassigned show_requester=True %}
+    {% else %}
+      <p class="muted">No unassigned active tickets.</p>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -1,13 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import Case, IntegerField, When
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from accounts.decorators import agent_required
 
-from . import permissions, services
+from . import filters, permissions, services
+from .dashboard import build_dashboard
 from .forms import (
     CommentForm,
     TicketAssignForm,
@@ -15,15 +16,8 @@ from .forms import (
     TicketPriorityForm,
     TicketStatusForm,
 )
-from .models import TicketPriority, TicketStatus
 
-PRIORITY_RANK = Case(
-    When(priority=TicketPriority.URGENT, then=0),
-    When(priority=TicketPriority.HIGH, then=1),
-    When(priority=TicketPriority.MEDIUM, then=2),
-    default=3,
-    output_field=IntegerField(),
-)
+PAGE_SIZE = 10
 
 
 def _get_ticket(request, pk):
@@ -42,26 +36,56 @@ def home(request):
 
 @login_required
 def ticket_list(request):
-    tickets = permissions.visible_tickets(request.user).select_related(
+    user = request.user
+
+    form = filters.TicketFilterForm(request.GET, user=user)
+    if form.is_valid():
+        data = form.cleaned_data
+    else:
+        data = {}
+        messages.warning(request, "Some filters were not valid and were ignored.")
+
+    tickets = permissions.visible_tickets(user).select_related(
         "category", "requester", "assignee"
     )
-    return render(request, "tickets/ticket_list.html", {"tickets": tickets})
+    tickets = filters.apply_filters(tickets, user, data) 
+    tickets = filters.apply_sort(tickets, data.get("sort"))
+
+    page_obj = Paginator(tickets, PAGE_SIZE).get_page(request.GET.get("page"))
+
+    params = request.GET.copy()
+    params.pop("page", None)
+
+    context = {
+        "form": form,
+        "page_obj": page_obj,
+        "querystring": params.urlencode(),
+        "filters_active": any(
+            value for key, value in data.items() if key != "sort"
+        ),
+    }
+    return render(request, "tickets/ticket_list.html", context)
 
 
 @agent_required
 def ticket_queue(request):
     active = (
         permissions.visible_tickets(request.user)
-        .filter(status__in=[TicketStatus.OPEN, TicketStatus.IN_PROGRESS])
+        .filter(status__in=filters.ACTIVE_STATUSES)
         .select_related("category", "requester", "assignee")
-        .annotate(priority_rank=PRIORITY_RANK)
-        .order_by("priority_rank", "created_at")
+        .annotate(priority_rank=filters.PRIORITY_RANK)
+        .order_by("priority_rank", "created_at", "id")
     )
     context = {
         "mine": active.filter(assignee=request.user),
         "unassigned": active.filter(assignee__isnull=True),
     }
     return render(request, "tickets/ticket_queue.html", context)
+
+
+@agent_required
+def dashboard(request):
+    return render(request, "tickets/dashboard.html", build_dashboard(request.user))
 
 
 @login_required
@@ -106,7 +130,7 @@ def ticket_create(request):
         form = TicketCreateForm(request.POST)
         if form.is_valid():
             ticket = form.save(commit=False)
-            ticket.requester = request.user
+            ticket.requester = request.user  
             ticket.save()
             messages.success(request, f"Ticket #{ticket.pk} was created.")
             return redirect("ticket_detail", pk=ticket.pk)
@@ -115,7 +139,7 @@ def ticket_create(request):
     return render(request, "tickets/ticket_form.html", {"form": form})
 
 
-# --- POST-only actions
+# ----- POST-only actions
 
 @login_required
 @require_POST
