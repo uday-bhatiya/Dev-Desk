@@ -16,7 +16,7 @@ CATEGORIES = [
     ("Email & Collaboration", "Mail, calendar and chat tools"),
 ]
 
-DEMO_USERS = [
+DEMO_USERS = [ 
     ("employee1", "Asha", "Patel", Role.EMPLOYEE),
     ("employee2", "Rohan", "Mehta", Role.EMPLOYEE),
     ("agent1", "Neha", "Shah", Role.AGENT),
@@ -61,8 +61,10 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        if not settings.DEBUG:
-            raise CommandError("seed_demo only runs when DJANGO_DEBUG=True.")
+        if not (settings.DEBUG or getattr(settings, "DEMO_MODE", False)):
+            raise CommandError(
+                "seed_demo only runs when DJANGO_DEBUG=True or DJANGO_DEMO_MODE=True."
+            )
 
         users = {}
         for username, first, last, role in DEMO_USERS:

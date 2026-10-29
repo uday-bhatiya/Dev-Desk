@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.cache import add_never_cache_headers
 
 CONTENT_SECURITY_POLICY = "; ".join(
     [
@@ -33,4 +34,5 @@ class SecurityHeadersMiddleware:
                 "Content-Security-Policy", CONTENT_SECURITY_POLICY
             )
         response.headers.setdefault("Permissions-Policy", PERMISSIONS_POLICY)
+        add_never_cache_headers(response)
         return response

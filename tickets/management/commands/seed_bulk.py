@@ -42,8 +42,10 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        if not settings.DEBUG:
-            raise CommandError("seed_bulk only runs when DJANGO_DEBUG=True.")
+        if not (settings.DEBUG or getattr(settings, "DEMO_MODE", False)):
+            raise CommandError(
+                "seed_bulk only runs when DJANGO_DEBUG=True or DJANGO_DEMO_MODE=True."
+            )
 
         employees = list(
             User.objects.filter(role=Role.EMPLOYEE, is_active=True).order_by("username")
